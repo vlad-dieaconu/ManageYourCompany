@@ -36,7 +36,7 @@ public class User {
 
     private String cnp;
     @Lob
-    private Byte[] profilePicture;
+    private byte[] profilePicture;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
@@ -54,7 +54,7 @@ public class User {
     public User() {
     }
 
-    public User(String email, String password, String username, String nume, String prenume, String cnp, Byte[] profilePicture) {
+    public User(String email, String password, String username, String nume, String prenume, String cnp, byte[] profilePicture) {
         this.email = email;
         this.password = password;
         this.username = username;
@@ -118,11 +118,11 @@ public class User {
         this.cnp = cnp;
     }
 
-    public Byte[] getProfilePicture() {
+    public byte[] getProfilePicture() {
         return profilePicture;
     }
 
-    public void setProfilePicture(Byte[] profilePicture) {
+    public void setProfilePicture(byte[] profilePicture) {
         this.profilePicture = profilePicture;
     }
 
