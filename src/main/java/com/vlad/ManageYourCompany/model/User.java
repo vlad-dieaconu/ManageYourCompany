@@ -1,5 +1,7 @@
 package com.vlad.ManageYourCompany.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -44,6 +46,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name="project_id")
     private Project project;
@@ -125,6 +128,7 @@ public class User {
     public void setProfilePicture(byte[] profilePicture) {
         this.profilePicture = profilePicture;
     }
+
     public Project getProject() {
         return project;
     }
@@ -150,4 +154,7 @@ public class User {
     public void setId(Long id) {
         this.id = id;
     }
+
+
+
 }
