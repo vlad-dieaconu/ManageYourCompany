@@ -7,6 +7,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -46,10 +47,14 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
+    //TODO: Solve stackoverflow
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name="project_id")
     private Project project;
+
+    @OneToMany(mappedBy = "user")
+    private List<WorkingDays> workingDays;
 
 
     public User() {
@@ -146,6 +151,13 @@ public class User {
         this.roles = roles;
     }
 
+    public List<WorkingDays> getWorkingDays() {
+        return workingDays;
+    }
+
+    public void setWorkingDays(List<WorkingDays> workingDays) {
+        this.workingDays = workingDays;
+    }
 
     public Long getId() {
         return id;
