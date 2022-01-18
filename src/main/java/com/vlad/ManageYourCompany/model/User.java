@@ -36,7 +36,7 @@ public class User {
 
     private String cnp;
     @Lob
-    private Byte[] profilePicture;
+    private byte[] profilePicture;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
@@ -44,17 +44,15 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-//    @ManyToMany(fetch = FetchType.LAZY)
-//    @JoinTable(name = "user_projects",
-//               joinColumns = @JoinColumn(name="user_id"),
-//               inverseJoinColumns = @JoinColumn(name="project_id"))
-//    private Set<Project> projects = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name="project_id")
+    private Project project;
 
 
     public User() {
     }
 
-    public User(String email, String password, String username, String nume, String prenume, String cnp, Byte[] profilePicture) {
+    public User(String email, String password, String username, String nume, String prenume, String cnp, byte[] profilePicture) {
         this.email = email;
         this.password = password;
         this.username = username;
@@ -64,7 +62,9 @@ public class User {
         this.profilePicture = profilePicture;
     }
 
-    public User(String email,String username,String password){
+
+
+    public User(String email, String username, String password){
         this.email = email;
         this.username = username;
         this.password = password;
@@ -118,12 +118,19 @@ public class User {
         this.cnp = cnp;
     }
 
-    public Byte[] getProfilePicture() {
+    public byte[] getProfilePicture() {
         return profilePicture;
     }
 
-    public void setProfilePicture(Byte[] profilePicture) {
+    public void setProfilePicture(byte[] profilePicture) {
         this.profilePicture = profilePicture;
+    }
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 
     @ManyToMany
@@ -134,15 +141,6 @@ public class User {
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
-
-//    @ManyToMany
-//    public Set<Project> getProjects() {
-//        return projects;
-//    }
-//
-//    public void setProjects(Set<Project> projects) {
-//        this.projects = projects;
-//    }
 
 
     public Long getId() {
