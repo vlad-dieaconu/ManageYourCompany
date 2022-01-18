@@ -22,7 +22,7 @@ public class Project {
 
     private Integer numarResurseNecesare;
 
-    private Integer numarActualResurse;
+    private Integer numarActualResurse = 0;
 
     public Project() {
     }
@@ -79,5 +79,17 @@ public class Project {
 
     public Long getId() {
         return id;
+    }
+
+    @Override
+    public String toString() {
+        return "Project{" +
+                "id=" + id +
+                ", nume='" + nume + '\'' +
+                ", locatie='" + locatie + '\'' +
+                ", employees=" + employees +
+                ", numarResurseNecesare=" + numarResurseNecesare +
+                ", numarActualResurse=" + numarActualResurse +
+                '}';
     }
 }
