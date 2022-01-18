@@ -44,11 +44,9 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-//    @ManyToMany(fetch = FetchType.LAZY)
-//    @JoinTable(name = "user_projects",
-//               joinColumns = @JoinColumn(name="user_id"),
-//               inverseJoinColumns = @JoinColumn(name="project_id"))
-//    private Set<Project> projects = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name="project_id")
+    private Project project;
 
 
     public User() {
@@ -64,7 +62,9 @@ public class User {
         this.profilePicture = profilePicture;
     }
 
-    public User(String email,String username,String password){
+
+
+    public User(String email, String username, String password){
         this.email = email;
         this.username = username;
         this.password = password;
@@ -125,6 +125,13 @@ public class User {
     public void setProfilePicture(byte[] profilePicture) {
         this.profilePicture = profilePicture;
     }
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
 
     @ManyToMany
     public Set<Role> getRoles() {
@@ -134,15 +141,6 @@ public class User {
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
-
-//    @ManyToMany
-//    public Set<Project> getProjects() {
-//        return projects;
-//    }
-//
-//    public void setProjects(Set<Project> projects) {
-//        this.projects = projects;
-//    }
 
 
     public Long getId() {
