@@ -57,6 +57,9 @@ public class User {
     private List<WorkingDays> workingDays;
 
 
+    private boolean firstLogin;
+
+
     public User() {
     }
 
@@ -140,6 +143,14 @@ public class User {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    public boolean isFirstLogin() {
+        return firstLogin;
+    }
+
+    public void setFirstLogin(boolean firstLogin) {
+        this.firstLogin = firstLogin;
     }
 
     @ManyToMany
