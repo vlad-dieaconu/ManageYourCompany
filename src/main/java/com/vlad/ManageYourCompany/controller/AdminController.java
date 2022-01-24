@@ -1,6 +1,7 @@
 package com.vlad.ManageYourCompany.controller;
 
 import com.vlad.ManageYourCompany.controller.payload.ProjectRequest;
+import com.vlad.ManageYourCompany.controller.payload.WorkingDayRequest;
 import com.vlad.ManageYourCompany.controller.payload.response.MessageResponse;
 import com.vlad.ManageYourCompany.exceptions.ProjectNotFoundException;
 import com.vlad.ManageYourCompany.model.Project;
@@ -15,10 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -104,6 +102,16 @@ public class AdminController {
 
         Collection<WorkingDays> workingDays;
         workingDays = workingDaysRepository.findWorkingDaysByUser(id);
+
+        return ResponseEntity.ok(workingDays);
+    }
+
+    @GetMapping("/getWorkingDayByDate")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getWorkingDayByDate(@RequestBody WorkingDayRequest date){
+
+        Collection<WorkingDays> workingDays;
+        workingDays = workingDaysRepository.findWorkingDaysByDate(date.getDate());
 
         return ResponseEntity.ok(workingDays);
     }
