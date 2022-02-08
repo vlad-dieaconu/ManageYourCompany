@@ -2,6 +2,7 @@ package com.vlad.ManageYourCompany.controller;
 
 
 import com.vlad.ManageYourCompany.controller.payload.EditProfileRequest;
+import com.vlad.ManageYourCompany.controller.payload.ResetPasswordRequest;
 import com.vlad.ManageYourCompany.controller.payload.WorkingDayRequest;
 import com.vlad.ManageYourCompany.controller.payload.response.MessageResponse;
 import com.vlad.ManageYourCompany.model.User;
@@ -15,6 +16,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,23 +40,24 @@ public class UserController {
     @Autowired
     JwtUtils jwtUtils;
 
+    @Autowired
+    PasswordEncoder encoder;
+
+
     @PutMapping("/editProfile")
     @PreAuthorize("hasRole('USER')")
     public User editProfile(@RequestBody EditProfileRequest editProfileRequest, HttpServletRequest request) {
-        String jwt = jwtUtils.getJwtFromCookies(request);
-        String username = jwtUtils.getUserNameFromJwtToken(jwt);
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
+        User user = getUser(request);
         if (editProfileRequest.getCnp() != null) {
             user.setCnp(editProfileRequest.getCnp());
         }
         if (editProfileRequest.getNume() != null) {
             user.setNume(editProfileRequest.getNume());
         }
-        if (editProfileRequest.getPrenume() != null){
+        if (editProfileRequest.getPrenume() != null) {
             user.setPrenume(editProfileRequest.getPrenume());
         }
-        if (editProfileRequest.getEmail() != null){
+        if (editProfileRequest.getEmail() != null) {
             user.setEmail(editProfileRequest.getEmail());
         }
         userRepository.save(user);
@@ -64,10 +67,7 @@ public class UserController {
     @PutMapping("/editProfilePicture")
     @PreAuthorize("hasRole('USER')")
     public User editProfilePicture(@RequestParam("file") MultipartFile imageFile, HttpServletRequest request) throws IOException {
-        String jwt = jwtUtils.getJwtFromCookies(request);
-        String username = jwtUtils.getUserNameFromJwtToken(jwt);
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
+        User user = getUser(request);
         user.setProfilePicture(imageFile.getBytes());
         userRepository.save(user);
         return user;
@@ -75,13 +75,9 @@ public class UserController {
 
     @PostMapping("/addWorkingDayDetails")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> addNewWorkingDay(@RequestBody WorkingDayRequest workingDayRequest,HttpServletRequest request){
+    public ResponseEntity<?> addNewWorkingDay(@RequestBody WorkingDayRequest workingDayRequest, HttpServletRequest request) {
 
-        String jwt = jwtUtils.getJwtFromCookies(request);
-        String username = jwtUtils.getUserNameFromJwtToken(jwt);
-
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
+        User user = getUser(request);
 
         WorkingDays workingDays = new WorkingDays();
         workingDays.setDetails(workingDayRequest.getDetails());
@@ -95,18 +91,33 @@ public class UserController {
 
     @GetMapping("/getPersonalWorkingDaysDetails")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> getWorkingDays(HttpServletRequest request){
+    public ResponseEntity<?> getWorkingDays(HttpServletRequest request) {
 
-        String jwt = jwtUtils.getJwtFromCookies(request);
-        String username = jwtUtils.getUserNameFromJwtToken(jwt);
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
+        User user = getUser(request);
 
         Long id = user.getId();
 
         Collection<WorkingDays> workingDays = workingDaysRepository.findWorkingDaysByUser(id);
 
         return ResponseEntity.ok(workingDays);
+    }
+
+
+    @PutMapping("/forgotPassword")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<?> resetPassword(HttpServletRequest request, @RequestBody ResetPasswordRequest newPassword) {
+        User user = getUser(request);
+        String password = encoder.encode(newPassword.getPassword());
+        user.setPassword(password);
+        userRepository.save(user);
+        return ResponseEntity.ok(new MessageResponse("Password changed successfully"));
+    }
+
+    private User getUser(HttpServletRequest request) {
+        String jwt = jwtUtils.getJwtFromCookies(request);
+        String username = jwtUtils.getUserNameFromJwtToken(jwt);
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
     }
 
 

@@ -58,6 +58,7 @@ public class AdminController {
         project.setNumarActualResurse(0);
         project.setNume(projectRequest.getNume());
         project.setNumarResurseNecesare(projectRequest.getNumarResurseNecesare());
+        project.setDescriere(projectRequest.getDescriere());
 
         projectRepository.save(project);
 
