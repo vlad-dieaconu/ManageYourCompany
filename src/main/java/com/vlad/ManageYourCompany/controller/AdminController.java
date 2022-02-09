@@ -44,8 +44,8 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public List<Project> getProjects(){
         List<Project> projects;
-        projects = projectRepository.findAll();
-
+        projects = projectRepository.findAllByOrderByIdDesc();
+        System.out.println(projects);
         return projects;
     }
 
