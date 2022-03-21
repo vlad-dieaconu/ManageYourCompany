@@ -5,6 +5,7 @@ public class ProjectRequest {
     private String nume;
     private String locatie;
     private Integer numarResurseNecesare;
+    private String descriere;
 
     public String getNume() {
         return nume;
@@ -28,5 +29,13 @@ public class ProjectRequest {
 
     public void setNumarResurseNecesare(Integer numarResurseNecesare) {
         this.numarResurseNecesare = numarResurseNecesare;
+    }
+
+    public String getDescriere() {
+        return descriere;
+    }
+
+    public void setDescriere(String descriere) {
+        this.descriere = descriere;
     }
 }

@@ -44,8 +44,8 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN')")
     public List<Project> getProjects(){
         List<Project> projects;
-        projects = projectRepository.findAll();
-
+        projects = projectRepository.findAllByOrderByIdDesc();
+        System.out.println(projects);
         return projects;
     }
 
@@ -58,6 +58,7 @@ public class AdminController {
         project.setNumarActualResurse(0);
         project.setNume(projectRequest.getNume());
         project.setNumarResurseNecesare(projectRequest.getNumarResurseNecesare());
+        project.setDescriere(projectRequest.getDescriere());
 
         projectRepository.save(project);
 

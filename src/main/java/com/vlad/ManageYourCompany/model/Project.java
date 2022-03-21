@@ -17,6 +17,8 @@ public class Project {
     @NotBlank
     private String locatie;
 
+    private String descriere;
+
     @OneToMany(mappedBy = "project")
     private List<User> employees;
 
@@ -27,10 +29,11 @@ public class Project {
     public Project() {
     }
 
-    public Project(String nume, String locatie, Integer numarResurseNecesare) {
+    public Project(String nume, String locatie, Integer numarResurseNecesare, String descriere) {
         this.nume = nume;
         this.locatie = locatie;
         this.numarResurseNecesare = numarResurseNecesare;
+        this.descriere = descriere;
     }
 
     public List<User> getEmployees() {
@@ -43,6 +46,14 @@ public class Project {
 
     public String getLocatie() {
         return locatie;
+    }
+
+    public String getDescriere() {
+        return descriere;
+    }
+
+    public void setDescriere(String descriere) {
+        this.descriere = descriere;
     }
 
     public void setLocatie(String locatie) {
