@@ -87,6 +87,26 @@ public class AdminController {
         return ResponseEntity.ok(user);
     }
 
+    @PutMapping("/editProject")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> editProject(@RequestParam Long id, @RequestBody ProjectRequest projectRequest){
+
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ProjectNotFoundException(id));
+        project.setDescriere(projectRequest.getDescriere());
+        projectRepository.save(project);
+        return ResponseEntity.ok(project);
+    }
+
+    @DeleteMapping("/deleteProject")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteProject(@RequestParam Long id){
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ProjectNotFoundException(id));
+        projectRepository.delete(project);
+    }
+
+
     @GetMapping("/getWorkingDays")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getWorkingDays(){

@@ -12,6 +12,7 @@ import com.vlad.ManageYourCompany.repositories.UserRepository;
 import com.vlad.ManageYourCompany.security.UserDetailsImpl;
 import com.vlad.ManageYourCompany.security.jwt.JwtUtils;
 import com.vlad.ManageYourCompany.services.EmailServiceImpl;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -98,7 +99,7 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
 
-//        System.out.println(signUpRequest.toString());
+        //System.out.println(signUpRequest.toString());
 
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));

@@ -45,7 +45,7 @@ public class UserController {
 
 
     @PutMapping("/editProfile")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public User editProfile(@RequestBody EditProfileRequest editProfileRequest, HttpServletRequest request) {
         User user = getUser(request);
         if (editProfileRequest.getCnp() != null) {
@@ -90,7 +90,7 @@ public class UserController {
     }
 
     @GetMapping("/getPersonalWorkingDaysDetails")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> getWorkingDays(HttpServletRequest request) {
 
         User user = getUser(request);
