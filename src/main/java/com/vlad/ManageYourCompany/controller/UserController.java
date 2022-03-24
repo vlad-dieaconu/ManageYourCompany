@@ -10,9 +10,7 @@ import com.vlad.ManageYourCompany.model.WorkingDays;
 import com.vlad.ManageYourCompany.repositories.UserRepository;
 import com.vlad.ManageYourCompany.repositories.WorkingDaysRepository;
 import com.vlad.ManageYourCompany.security.jwt.JwtUtils;
-import org.hibernate.EntityMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -43,9 +41,17 @@ public class UserController {
     @Autowired
     PasswordEncoder encoder;
 
+    @GetMapping("/getPersonalDetails")
+    public ResponseEntity<?> getUserData(@RequestParam Long id){
+
+        Optional<User> user = userRepository.findById(id);
+
+        return ResponseEntity.ok(user);
+    }
+
 
     @PutMapping("/editProfile")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')" )
     public User editProfile(@RequestBody EditProfileRequest editProfileRequest, HttpServletRequest request) {
         User user = getUser(request);
         if (editProfileRequest.getCnp() != null) {

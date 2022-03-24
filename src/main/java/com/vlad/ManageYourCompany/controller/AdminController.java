@@ -127,10 +127,10 @@ public class AdminController {
         return ResponseEntity.ok(workingDays);
     }
 
-    @GetMapping("/getWorkingDayByDate")
+    @PostMapping("/getWorkingDayByDate")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getWorkingDayByDate(@RequestBody WorkingDayRequest date){
-
+        System.out.println(date.toString());
         Collection<WorkingDays> workingDays;
         workingDays = workingDaysRepository.findWorkingDaysByDate(date.getDate());
 
