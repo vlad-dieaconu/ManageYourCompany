@@ -45,7 +45,6 @@ public class AdminController {
     public List<Project> getProjects(){
         List<Project> projects;
         projects = projectRepository.findAllByOrderByIdDesc();
-        System.out.println(projects);
         return projects;
     }
 
@@ -137,5 +136,11 @@ public class AdminController {
         return ResponseEntity.ok(workingDays);
     }
 
+    @DeleteMapping("/removeEmployee")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void removeEmployee(@RequestParam Long id){
+        User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User Not Found with id: " + id));
+        userRepository.delete(user);
+    }
 
 }
