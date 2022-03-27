@@ -55,7 +55,7 @@ public class SignupRequest {
     }
 
     @Override
-    public String toString() {
+    public String  toString() {
         return "SignupRequest{" +
                 "username='" + username + '\'' +
                 ", email='" + email + '\'' +

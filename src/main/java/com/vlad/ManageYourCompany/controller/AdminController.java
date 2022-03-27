@@ -45,7 +45,6 @@ public class AdminController {
     public List<Project> getProjects(){
         List<Project> projects;
         projects = projectRepository.findAllByOrderByIdDesc();
-        System.out.println(projects);
         return projects;
     }
 
@@ -87,6 +86,26 @@ public class AdminController {
         return ResponseEntity.ok(user);
     }
 
+    @PutMapping("/editProject")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> editProject(@RequestParam Long id, @RequestBody ProjectRequest projectRequest){
+
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ProjectNotFoundException(id));
+        project.setDescriere(projectRequest.getDescriere());
+        projectRepository.save(project);
+        return ResponseEntity.ok(project);
+    }
+
+    @DeleteMapping("/deleteProject")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteProject(@RequestParam Long id){
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ProjectNotFoundException(id));
+        projectRepository.delete(project);
+    }
+
+
     @GetMapping("/getWorkingDays")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getWorkingDays(){
@@ -107,15 +126,21 @@ public class AdminController {
         return ResponseEntity.ok(workingDays);
     }
 
-    @GetMapping("/getWorkingDayByDate")
+    @PostMapping("/getWorkingDayByDate")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getWorkingDayByDate(@RequestBody WorkingDayRequest date){
-
+        System.out.println(date.toString());
         Collection<WorkingDays> workingDays;
         workingDays = workingDaysRepository.findWorkingDaysByDate(date.getDate());
 
         return ResponseEntity.ok(workingDays);
     }
 
+    @DeleteMapping("/removeEmployee")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void removeEmployee(@RequestParam Long id){
+        User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User Not Found with id: " + id));
+        userRepository.delete(user);
+    }
 
 }

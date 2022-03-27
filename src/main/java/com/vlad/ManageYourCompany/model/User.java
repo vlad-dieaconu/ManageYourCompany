@@ -6,6 +6,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,7 +48,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-    //TODO: Solve stackoverflow
+
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name="project_id")
@@ -177,7 +178,5 @@ public class User {
     public void setId(Long id) {
         this.id = id;
     }
-
-
 
 }

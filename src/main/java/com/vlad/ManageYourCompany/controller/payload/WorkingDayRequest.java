@@ -22,4 +22,12 @@ public class WorkingDayRequest {
     public void setDetails(String details) {
         this.details = details;
     }
+
+    @Override
+    public String toString() {
+        return "WorkingDayRequest{" +
+                "date=" + date +
+                ", details='" + details + '\'' +
+                '}';
+    }
 }
