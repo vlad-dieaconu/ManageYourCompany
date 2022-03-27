@@ -109,15 +109,15 @@ public class UserController {
     }
 
 
-    @PutMapping("/forgotPassword")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<?> resetPassword(HttpServletRequest request, @RequestBody ResetPasswordRequest newPassword) {
-        User user = getUser(request);
-        String password = encoder.encode(newPassword.getPassword());
-        user.setPassword(password);
-        userRepository.save(user);
-        return ResponseEntity.ok(new MessageResponse("Password changed successfully"));
-    }
+//    @PutMapping("/forgotPassword")
+//    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+//    public ResponseEntity<?> resetPassword(HttpServletRequest request, @RequestBody ResetPasswordRequest newPassword) {
+//        User user = getUser(request);
+//        String password = encoder.encode(newPassword.getPassword());
+//        user.setPassword(password);
+//        userRepository.save(user);
+//        return ResponseEntity.ok(new MessageResponse("Password changed successfully"));
+//    }
 
     private User getUser(HttpServletRequest request) {
         String jwt = jwtUtils.getJwtFromCookies(request);

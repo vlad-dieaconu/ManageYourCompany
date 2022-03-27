@@ -5,19 +5,20 @@ import com.vlad.ManageYourCompany.controller.payload.SignupRequest;
 import com.vlad.ManageYourCompany.controller.payload.response.MessageResponse;
 import com.vlad.ManageYourCompany.controller.payload.response.UserInfoResponse;
 import com.vlad.ManageYourCompany.model.ERole;
+import com.vlad.ManageYourCompany.model.PasswordResetToken;
 import com.vlad.ManageYourCompany.model.Role;
 import com.vlad.ManageYourCompany.model.User;
+import com.vlad.ManageYourCompany.repositories.PasswordTokenRepository;
 import com.vlad.ManageYourCompany.repositories.RoleRepository;
 import com.vlad.ManageYourCompany.repositories.UserRepository;
 import com.vlad.ManageYourCompany.security.UserDetailsImpl;
 import com.vlad.ManageYourCompany.security.jwt.JwtUtils;
 import com.vlad.ManageYourCompany.services.EmailServiceImpl;
-import org.apache.logging.log4j.Logger;
+import com.vlad.ManageYourCompany.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -27,10 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -47,6 +45,9 @@ public class AuthController {
     RoleRepository roleRepository;
 
     @Autowired
+    PasswordTokenRepository passwordTokenRepository;
+
+    @Autowired
     PasswordEncoder encoder;
 
     @Autowired
@@ -55,11 +56,14 @@ public class AuthController {
     @Autowired
     EmailServiceImpl emailService;
 
+    @Autowired
+    UserService userService;
+
+
     private static final String signUpMessage = "Welcome to our team !"+"\n"+"Ask your admin the credentials for the login !";
     private static final String firstLoginMessage = "Because it's the first time you are logging in with the credentials that your admin set to you, please change your password" + "\n" +
-                                                    "Please access this link to change your password https://localhost:8080/changepassword";
+                                                    "Please access this link to change your password https://localhost:3000/changepassword";
 
-    private
 
     @PostMapping("/signin")
     ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
@@ -154,4 +158,68 @@ public class AuthController {
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(new MessageResponse("You've been signed out!"));
     }
+
+//    @PostMapping("/changepassword")
+//    public ResponseEntity<?> changePassword(@RequestParam String email){
+//
+//        String changePasswordText = "Set your new password by clicking the link below" + "\n"
+//                                    +"localhost:3000/changePassword";
+//
+//        User user = userRepository.findByEmail(email)
+//                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with email: " + email));
+//        if(user != null){
+//            emailService.sendMail(user.getEmail(),"Change your password", firstLoginMessage);
+//            return ResponseEntity.ok("An email has been sent with all the details needed to change the password");
+//        }
+//
+//        return ResponseEntity.badRequest().body(new MessageResponse("Email does not correspond to any account"));
+//
+//    }
+
+    @PostMapping("/resetPassword")
+    public ResponseEntity<?> resetPassword(@RequestParam("email") String userEmail) {
+
+
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException("User Not Found with email: " + userEmail));
+
+        if(user != null){
+            System.out.println("s-a intrat");
+        String token = UUID.randomUUID().toString();
+        userService.createPasswordResetTokenForUser(user, token);
+
+        String changePasswordText = "Set your new password by clicking the link below" + "\n"
+                                  +"http://localhost:3000/changePassword/" + token;
+
+        emailService.sendMail(user.getEmail(),"Change your password", changePasswordText);
+        return ResponseEntity.ok("An email has been sent with all the details needed to change the password");
+
+        }
+        return ResponseEntity.badRequest().body(new MessageResponse("Email does not correspond to any account"));
+    }
+
+    @GetMapping("/changePassword")
+    public String showChangePasswordPage(@RequestParam("token") String token) {
+        String result = userService.validatePasswordResetToken(token);
+        if(result != null) {
+            String failMessage = result;
+            return failMessage;
+        } else {
+            String successMessage = "Valid token";
+            return successMessage;
+        }
+    }
+    @PutMapping("/savePassword")
+    public ResponseEntity<?> savePassword(@RequestParam("token") String token, @RequestParam("password") String password) {
+
+        PasswordResetToken passwordResetToken = passwordTokenRepository.findByToken(token);
+        User user = passwordResetToken.getUser();
+        user.setPassword(encoder.encode(password));
+        userRepository.save(user);
+
+        return ResponseEntity.ok("The password was changed!");
+    }
+
+
+
+
 }
