@@ -26,6 +26,10 @@ public class Project {
 
     private Integer numarActualResurse = 0;
 
+    @OneToMany(mappedBy = "project")
+    private List<ProjectCommits> projectCommits;
+
+
     public Project() {
     }
 
@@ -90,6 +94,14 @@ public class Project {
 
     public Long getId() {
         return id;
+    }
+
+    public List<ProjectCommits> getProjectCommits() {
+        return projectCommits;
+    }
+
+    public void setProjectCommits(List<ProjectCommits> projectCommits) {
+        this.projectCommits = projectCommits;
     }
 
     @Override
