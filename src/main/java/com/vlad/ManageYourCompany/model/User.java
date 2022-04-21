@@ -42,6 +42,14 @@ public class User {
     @Lob
     private byte[] profilePicture;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    private List<AdminNotification> adminNotifications;
+
+    private int freeDays;
+    private int freeDaysTaken;
+
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -55,7 +63,14 @@ public class User {
     private Project project;
 
     @OneToMany(mappedBy = "user")
+    private List<ProjectCommits> projectCommits;
+
+    @OneToMany(mappedBy = "user")
     private List<WorkingDays> workingDays;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<LeaveRequest> leaveRequests;
 
 
     private boolean firstLogin;
@@ -80,6 +95,7 @@ public class User {
         this.email = email;
         this.username = username;
         this.password = password;
+        this.freeDays = 22;
     }
 
     public String getUsername() {
@@ -154,6 +170,23 @@ public class User {
         this.firstLogin = firstLogin;
     }
 
+
+    public int getFreeDays() {
+        return freeDays;
+    }
+
+    public void setFreeDays(int freeDays) {
+        this.freeDays = freeDays;
+    }
+
+    public int getFreeDaysTaken() {
+        return freeDaysTaken;
+    }
+
+    public void setFreeDaysTaken(int freeDaysTaken) {
+        this.freeDaysTaken = freeDaysTaken;
+    }
+
     @ManyToMany
     public Set<Role> getRoles() {
         return roles;
@@ -179,4 +212,27 @@ public class User {
         this.id = id;
     }
 
+    public List<AdminNotification> getAdminNotifications() {
+        return adminNotifications;
+    }
+
+    public void setAdminNotifications(List<AdminNotification> adminNotifications) {
+        this.adminNotifications = adminNotifications;
+    }
+
+    public List<ProjectCommits> getProjectCommits() {
+        return projectCommits;
+    }
+
+    public void setProjectCommits(List<ProjectCommits> projectCommits) {
+        this.projectCommits = projectCommits;
+    }
+
+    public List<LeaveRequest> getLeaveRequests() {
+        return leaveRequests;
+    }
+
+    public void setLeaveRequests(List<LeaveRequest> leaveRequests) {
+        this.leaveRequests = leaveRequests;
+    }
 }

@@ -6,6 +6,7 @@ public class WorkingDayRequest {
 
     private Date date;
     private String details;
+    private int hours;
 
     public Date getDate() {
         return date;
@@ -22,6 +23,16 @@ public class WorkingDayRequest {
     public void setDetails(String details) {
         this.details = details;
     }
+
+    public int getHours() {
+        return hours;
+    }
+
+    public void setHours(int hours) {
+        this.hours = hours;
+    }
+
+
 
     @Override
     public String toString() {

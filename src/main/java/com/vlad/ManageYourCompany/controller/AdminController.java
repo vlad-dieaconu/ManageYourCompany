@@ -3,13 +3,10 @@ package com.vlad.ManageYourCompany.controller;
 import com.vlad.ManageYourCompany.controller.payload.ProjectRequest;
 import com.vlad.ManageYourCompany.controller.payload.WorkingDayRequest;
 import com.vlad.ManageYourCompany.controller.payload.response.MessageResponse;
+import com.vlad.ManageYourCompany.exceptions.LeaveRequestNotFoundException;
 import com.vlad.ManageYourCompany.exceptions.ProjectNotFoundException;
-import com.vlad.ManageYourCompany.model.Project;
-import com.vlad.ManageYourCompany.model.User;
-import com.vlad.ManageYourCompany.model.WorkingDays;
-import com.vlad.ManageYourCompany.repositories.ProjectRepository;
-import com.vlad.ManageYourCompany.repositories.UserRepository;
-import com.vlad.ManageYourCompany.repositories.WorkingDaysRepository;
+import com.vlad.ManageYourCompany.model.*;
+import com.vlad.ManageYourCompany.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -29,6 +27,13 @@ public class AdminController {
     ProjectRepository projectRepository;
     @Autowired
     WorkingDaysRepository workingDaysRepository;
+
+    @Autowired
+    LeaveRequestRepository leaveRequestRepository;
+
+    @Autowired
+    AdminNotificationRepository adminNotificationRepository;
+
 
 
     @GetMapping("/getEmployees")
@@ -142,5 +147,89 @@ public class AdminController {
         User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User Not Found with id: " + id));
         userRepository.delete(user);
     }
+
+    @PutMapping("/acceptLeaveRequest")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> acceptLeaveRequest(@RequestParam Long id){
+
+        LeaveRequest leaveRequest = leaveRequestRepository.findById(id).orElseThrow(() -> new LeaveRequestNotFoundException(id));
+        leaveRequest.setSeenBySuperior(true);
+        leaveRequest.setApproved(true);
+
+        User user = leaveRequest.getUser();
+
+        long differenceBetweenDates = leaveRequest.getEndDate().getTime() - leaveRequest.getStartDate().getTime();
+        long differenceInDays = TimeUnit.MILLISECONDS.toDays(differenceBetweenDates) % 365;
+
+        if(differenceInDays == 0){
+            user.setFreeDays(user.getFreeDays() - 1);
+            user.setFreeDaysTaken(user.getFreeDaysTaken() + 1);
+        }
+        else if (user.getFreeDays() > differenceInDays) {
+            user.setFreeDays(user.getFreeDays() - (int) differenceInDays);
+            user.setFreeDaysTaken(user.getFreeDaysTaken() + (int) differenceInDays);
+            userRepository.save(user);
+        }
+
+
+        leaveRequest.setNumberOfDays((int) differenceInDays);
+
+
+        leaveRequestRepository.save(leaveRequest);
+
+        return ResponseEntity.ok("Vacation request was accepted!");
+
+    }
+
+    @PutMapping("/declineLeaveRequest")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void declineLeaveRequest(@RequestParam Long id){
+
+        LeaveRequest leaveRequest = leaveRequestRepository.findById(id).orElseThrow(() -> new LeaveRequestNotFoundException(id));
+        leaveRequest.setSeenBySuperior(true);
+        leaveRequest.setApproved(false);
+        leaveRequestRepository.save(leaveRequest);
+    }
+
+    @GetMapping("/getAllLeaveRequests")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getAllLeaveRequests(){
+        List<LeaveRequest> leaveRequests = leaveRequestRepository.findAllByOrderByIdDesc();
+        return ResponseEntity.ok(leaveRequests);
+    }
+
+    @GetMapping("/getAllLeaveRequestsForOneUser")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getLeaveRequestsForOneUser(@RequestParam Long userId){
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User Not Found with id: " + userId));
+
+        List<LeaveRequest> leaveRequests = leaveRequestRepository.findByUserOrderByIdDesc(user);
+        return ResponseEntity.ok(leaveRequests);
+    }
+
+    @GetMapping("/getAllNotifications")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getAllNotifications(){
+        List<AdminNotification> notifications = adminNotificationRepository.findAllByOrderByIdDesc();
+        return ResponseEntity.ok(notifications);
+    }
+
+    @GetMapping("/getAllNotificationsForOneUser")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getNotificationsForOneUser(@RequestParam Long userId){
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User Not Found with id: " + userId));
+
+        List<AdminNotification> notifications = adminNotificationRepository.findByUser(user);
+        return ResponseEntity.ok(notifications);
+    }
+
+    @DeleteMapping("/deleteNotification")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteNotification(@RequestParam Long id){
+        adminNotificationRepository.deleteById(id);
+    }
+
 
 }

@@ -1,5 +1,7 @@
 package com.vlad.ManageYourCompany.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
@@ -17,14 +19,20 @@ public class Project {
     @NotBlank
     private String locatie;
 
+    @Lob
     private String descriere;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "project")
     private List<User> employees;
 
     private Integer numarResurseNecesare;
 
     private Integer numarActualResurse = 0;
+
+    @OneToMany(mappedBy = "project")
+    private List<ProjectCommits> projectCommits;
+
 
     public Project() {
     }
@@ -90,6 +98,14 @@ public class Project {
 
     public Long getId() {
         return id;
+    }
+
+    public List<ProjectCommits> getProjectCommits() {
+        return projectCommits;
+    }
+
+    public void setProjectCommits(List<ProjectCommits> projectCommits) {
+        this.projectCommits = projectCommits;
     }
 
     @Override
