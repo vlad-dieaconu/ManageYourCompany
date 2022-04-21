@@ -1,5 +1,7 @@
 package com.vlad.ManageYourCompany.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
@@ -17,8 +19,10 @@ public class Project {
     @NotBlank
     private String locatie;
 
+    @Lob
     private String descriere;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "project")
     private List<User> employees;
 

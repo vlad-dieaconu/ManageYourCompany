@@ -13,4 +13,5 @@ public interface ProjectCommitsRepository extends JpaRepository<ProjectCommits, 
     //TODO IMPLEMENT ADMIN FEATURE
     ProjectCommits findProjectCommitsByUser(User user);
     List<ProjectCommits> findByProject(Project project);
+    List<ProjectCommits> findByProjectOrderByIdDesc(Project project);
 }

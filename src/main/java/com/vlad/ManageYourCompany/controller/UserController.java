@@ -6,10 +6,7 @@ import com.vlad.ManageYourCompany.controller.payload.LeaveTypeRequest;
 import com.vlad.ManageYourCompany.controller.payload.ProjectCommitsRequest;
 import com.vlad.ManageYourCompany.controller.payload.WorkingDayRequest;
 import com.vlad.ManageYourCompany.model.*;
-import com.vlad.ManageYourCompany.repositories.LeaveRequestRepository;
-import com.vlad.ManageYourCompany.repositories.ProjectCommitsRepository;
-import com.vlad.ManageYourCompany.repositories.UserRepository;
-import com.vlad.ManageYourCompany.repositories.WorkingDaysRepository;
+import com.vlad.ManageYourCompany.repositories.*;
 import com.vlad.ManageYourCompany.security.jwt.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +38,9 @@ public class UserController {
 
     @Autowired
     LeaveRequestRepository leaveRequestRepository;
+
+    @Autowired
+    AdminNotificationRepository adminNotificationRepository;
 
     @Autowired
     JwtUtils jwtUtils;
@@ -95,7 +95,18 @@ public class UserController {
         WorkingDays workingDays = new WorkingDays();
         workingDays.setDetails(workingDayRequest.getDetails());
         workingDays.setDate(workingDayRequest.getDate());
+        workingDays.setHours(workingDayRequest.getHours());
         workingDays.setUser(user);
+
+        AdminNotification adminNotification = new AdminNotification();
+        Date notificationDate = new Date();
+        adminNotification.setDate(notificationDate);
+        adminNotification.setUser(user);
+        adminNotification.setDescription(user.getNume() + " " + user.getPrenume() + " added a new working day");
+        adminNotification.setType("New details about the current working day");
+
+        adminNotificationRepository.save(adminNotification);
+
 
         workingDaysRepository.save(workingDays);
 
@@ -135,6 +146,15 @@ public class UserController {
         projectCommit.setProject(project);
         projectCommit.setUser(user);
 
+        AdminNotification adminNotification = new AdminNotification();
+        Date notificationDate = new Date();
+        adminNotification.setDate(notificationDate);
+        adminNotification.setUser(user);
+        adminNotification.setDescription("New commit on project:" + project.getNume()+" "+ "by user:" + user.getPrenume() + " " + user.getPrenume());
+        adminNotification.setType("Commit");
+
+        adminNotificationRepository.save(adminNotification);
+
         projectCommitsRepository.save(projectCommit);
 
         return ResponseEntity.ok(project);
@@ -147,7 +167,8 @@ public class UserController {
 
         Project project = user.getProject();
 
-        List<ProjectCommits> projectCommits = projectCommitsRepository.findByProject(project);
+        List<ProjectCommits> projectCommits = projectCommitsRepository.findByProjectOrderByIdDesc(project);
+        System.out.println(projectCommits);
 
         return ResponseEntity.ok(projectCommits);
 
@@ -186,6 +207,14 @@ public class UserController {
             newLeaveRequest.setLeaveType(LeaveType.FAMILY_PROBLEM);
         }
 
+        AdminNotification adminNotification = new AdminNotification();
+        Date notificationDate = new Date();
+        adminNotification.setDate(notificationDate);
+        adminNotification.setUser(user);
+        adminNotification.setDescription("New leave request by " + user.getPrenume() + " " + user.getNume());
+        adminNotification.setType("Leave request");
+
+        adminNotificationRepository.save(adminNotification);
         leaveRequestRepository.save(newLeaveRequest);
 
         return ResponseEntity.ok("The request was send to your superior!");

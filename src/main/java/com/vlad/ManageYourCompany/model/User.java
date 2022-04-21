@@ -42,6 +42,10 @@ public class User {
     @Lob
     private byte[] profilePicture;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    private List<AdminNotification> adminNotifications;
+
     private int freeDays;
     private int freeDaysTaken;
 
@@ -64,6 +68,7 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<WorkingDays> workingDays;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<LeaveRequest> leaveRequests;
 
@@ -207,4 +212,27 @@ public class User {
         this.id = id;
     }
 
+    public List<AdminNotification> getAdminNotifications() {
+        return adminNotifications;
+    }
+
+    public void setAdminNotifications(List<AdminNotification> adminNotifications) {
+        this.adminNotifications = adminNotifications;
+    }
+
+    public List<ProjectCommits> getProjectCommits() {
+        return projectCommits;
+    }
+
+    public void setProjectCommits(List<ProjectCommits> projectCommits) {
+        this.projectCommits = projectCommits;
+    }
+
+    public List<LeaveRequest> getLeaveRequests() {
+        return leaveRequests;
+    }
+
+    public void setLeaveRequests(List<LeaveRequest> leaveRequests) {
+        this.leaveRequests = leaveRequests;
+    }
 }

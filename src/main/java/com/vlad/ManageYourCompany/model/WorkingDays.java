@@ -19,7 +19,8 @@ public class WorkingDays {
     @Lob
     private String details;
 
-    //TODO add how many hours worked
+
+    private int hours;
 
 
     @JsonIgnore
@@ -68,5 +69,13 @@ public class WorkingDays {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public int getHours() {
+        return hours;
+    }
+
+    public void setHours(int hours) {
+        this.hours = hours;
     }
 }

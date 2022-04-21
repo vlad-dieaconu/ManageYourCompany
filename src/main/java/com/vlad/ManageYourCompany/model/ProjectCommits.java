@@ -23,6 +23,7 @@ public class ProjectCommits {
     @JoinColumn(name="project_id")
     private Project project;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name="user_id")
     private User user;

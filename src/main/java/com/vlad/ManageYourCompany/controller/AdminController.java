@@ -5,14 +5,8 @@ import com.vlad.ManageYourCompany.controller.payload.WorkingDayRequest;
 import com.vlad.ManageYourCompany.controller.payload.response.MessageResponse;
 import com.vlad.ManageYourCompany.exceptions.LeaveRequestNotFoundException;
 import com.vlad.ManageYourCompany.exceptions.ProjectNotFoundException;
-import com.vlad.ManageYourCompany.model.LeaveRequest;
-import com.vlad.ManageYourCompany.model.Project;
-import com.vlad.ManageYourCompany.model.User;
-import com.vlad.ManageYourCompany.model.WorkingDays;
-import com.vlad.ManageYourCompany.repositories.LeaveRequestRepository;
-import com.vlad.ManageYourCompany.repositories.ProjectRepository;
-import com.vlad.ManageYourCompany.repositories.UserRepository;
-import com.vlad.ManageYourCompany.repositories.WorkingDaysRepository;
+import com.vlad.ManageYourCompany.model.*;
+import com.vlad.ManageYourCompany.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,6 +30,10 @@ public class AdminController {
 
     @Autowired
     LeaveRequestRepository leaveRequestRepository;
+
+    @Autowired
+    AdminNotificationRepository adminNotificationRepository;
+
 
 
     @GetMapping("/getEmployees")
@@ -209,5 +207,29 @@ public class AdminController {
         List<LeaveRequest> leaveRequests = leaveRequestRepository.findByUserOrderByIdDesc(user);
         return ResponseEntity.ok(leaveRequests);
     }
+
+    @GetMapping("/getAllNotifications")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getAllNotifications(){
+        List<AdminNotification> notifications = adminNotificationRepository.findAllByOrderByIdDesc();
+        return ResponseEntity.ok(notifications);
+    }
+
+    @GetMapping("/getAllNotificationsForOneUser")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getNotificationsForOneUser(@RequestParam Long userId){
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User Not Found with id: " + userId));
+
+        List<AdminNotification> notifications = adminNotificationRepository.findByUser(user);
+        return ResponseEntity.ok(notifications);
+    }
+
+    @DeleteMapping("/deleteNotification")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void deleteNotification(@RequestParam Long id){
+        adminNotificationRepository.deleteById(id);
+    }
+
 
 }
