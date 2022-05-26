@@ -150,7 +150,7 @@ public class UserController {
         Date notificationDate = new Date();
         adminNotification.setDate(notificationDate);
         adminNotification.setUser(user);
-        adminNotification.setDescription("New commit on project:" + project.getNume()+" "+ "by user:" + user.getPrenume() + " " + user.getPrenume());
+        adminNotification.setDescription("New commit on project: " + project.getNume()+" "+ "by user: " + user.getPrenume() + " " + user.getNume());
         adminNotification.setType("Commit");
 
         adminNotificationRepository.save(adminNotification);

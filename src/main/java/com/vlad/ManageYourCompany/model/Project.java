@@ -104,6 +104,10 @@ public class Project {
         return projectCommits;
     }
 
+    public int getSizeOfCommits(){
+        return projectCommits.size();
+    }
+
     public void setProjectCommits(List<ProjectCommits> projectCommits) {
         this.projectCommits = projectCommits;
     }

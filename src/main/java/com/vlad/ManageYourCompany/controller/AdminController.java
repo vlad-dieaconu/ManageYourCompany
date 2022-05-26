@@ -13,6 +13,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -33,6 +35,10 @@ public class AdminController {
 
     @Autowired
     AdminNotificationRepository adminNotificationRepository;
+
+    @Autowired
+    ProjectCommitsRepository projectCommitsRepository;
+
 
 
 
@@ -102,6 +108,16 @@ public class AdminController {
         return ResponseEntity.ok(project);
     }
 
+    @GetMapping("/getProject")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Project> getProject(@RequestParam Long id){
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new ProjectNotFoundException(id));
+
+        return ResponseEntity.ok(project);
+
+    }
+
     @DeleteMapping("/deleteProject")
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteProject(@RequestParam Long id){
@@ -134,12 +150,35 @@ public class AdminController {
     @PostMapping("/getWorkingDayByDate")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> getWorkingDayByDate(@RequestBody WorkingDayRequest date){
-        System.out.println(date.toString());
+
         Collection<WorkingDays> workingDays;
         workingDays = workingDaysRepository.findWorkingDaysByDate(date.getDate());
 
         return ResponseEntity.ok(workingDays);
     }
+
+    @GetMapping("/getWorkingDaysFromCurrentMonth")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getWorkingDaysFromCurrentMonth(){
+
+        Collection<WorkingDays> workingDays;
+        LocalDate todayDate = LocalDate.now();
+        LocalDate firstDayOfTheMonth = todayDate.withDayOfMonth(1);
+
+        System.out.println("First day of the month "+firstDayOfTheMonth);
+
+        LocalDate lastDayOfTheMonth = todayDate.withDayOfMonth(todayDate.lengthOfMonth());
+
+        System.out.println("Last day of the month "+lastDayOfTheMonth);
+
+        Date startDate = Date.from(firstDayOfTheMonth.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date endDate = Date.from(lastDayOfTheMonth.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        workingDays = workingDaysRepository.findWorkingDaysByMonth(startDate, endDate);
+
+        return ResponseEntity.ok(workingDays);
+    }
+
 
     @DeleteMapping("/removeEmployee")
     @PreAuthorize("hasRole('ADMIN')")
@@ -227,8 +266,30 @@ public class AdminController {
 
     @DeleteMapping("/deleteNotification")
     @PreAuthorize("hasRole('ADMIN')")
-    public void deleteNotification(@RequestParam Long id){
+    public ResponseEntity<?> deleteNotification(@RequestParam Long id){
+
         adminNotificationRepository.deleteById(id);
+
+
+        return ResponseEntity.ok(adminNotificationRepository.findAll());
+
+    }
+
+    @GetMapping("/getTheMostPopularProject")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getProjectWithMostCommits(){
+
+        List<Project> projects = projectRepository.findAll();
+
+        //from projects get the project with the projectCommits of the largest size
+        Project projectWithMostCommits = projects.stream()
+                .max(Comparator.comparing(Project::getSizeOfCommits))
+                .orElseThrow(() -> new ProjectNotFoundException("No projects found"));
+
+        List<ProjectCommits> projectCommits = projectWithMostCommits.getProjectCommits();
+        System.out.println(projectCommits.toString());
+
+        return ResponseEntity.ok(projectWithMostCommits);
     }
 
 

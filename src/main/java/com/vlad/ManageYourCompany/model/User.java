@@ -62,9 +62,11 @@ public class User {
     @JoinColumn(name="project_id")
     private Project project;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<ProjectCommits> projectCommits;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<WorkingDays> workingDays;
 

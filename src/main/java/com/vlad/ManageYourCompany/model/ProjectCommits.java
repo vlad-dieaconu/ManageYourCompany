@@ -23,7 +23,7 @@ public class ProjectCommits {
     @JoinColumn(name="project_id")
     private Project project;
 
-    @JsonIgnore
+
     @ManyToOne
     @JoinColumn(name="user_id")
     private User user;
@@ -74,5 +74,17 @@ public class ProjectCommits {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+
+    @Override
+    public String toString() {
+        return "ProjectCommits{" +
+                "id=" + id +
+                ", date=" + date +
+                ", commit='" + commit + '\'' +
+                ", project=" + project +
+                ", user=" + user +
+                '}';
     }
 }

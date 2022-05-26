@@ -23,7 +23,6 @@ public class WorkingDays {
     private int hours;
 
 
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name="user_id")
     private User user;
