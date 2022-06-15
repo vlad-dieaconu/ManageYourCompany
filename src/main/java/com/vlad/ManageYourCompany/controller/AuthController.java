@@ -60,9 +60,9 @@ public class AuthController {
     UserService userService;
 
 
-    private static final String signUpMessage = "Welcome to our team !"+"\n"+"Ask your admin the credentials for the login !";
+    private static final String signUpMessage = "Welcome to our team !" + "\n" + "Ask your admin the credentials for the login !";
     private static final String firstLoginMessage = "Because it's the first time you are logging in with the credentials that your admin set to you, please change your password" + "\n" +
-                                                    "Please access this link to change your password https://localhost:3000/changepassword";
+            "Please access this link to change your password https://localhost:3000/changepassword";
 
 
     @PostMapping("/signin")
@@ -72,26 +72,21 @@ public class AuthController {
                 .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-
         ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
-
 
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
-
         User user = userRepository.findByUsername(loginRequest.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + loginRequest.getUsername()));
-        if(user.isFirstLogin()){
-            emailService.sendMail(user.getEmail(),"Your first login to our app !", firstLoginMessage);
+        if (user.isFirstLogin()) {
+            emailService.sendMail(user.getEmail(), "Your first login to our app !", firstLoginMessage);
             user.setFirstLogin(false);
             userRepository.save(user);
         }
 
-//        System.out.println(jwtCookie.toString());
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                 .body(new UserInfoResponse(userDetails.getId(),
                         userDetails.getUsername(),
@@ -102,8 +97,6 @@ public class AuthController {
     //Because for the first time when a user login he will receive an email to change the password
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-
-        //System.out.println(signUpRequest.toString());
 
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
@@ -121,7 +114,6 @@ public class AuthController {
         Set<Role> roles = new HashSet<>();
 
         emailService.sendMail(signUpRequest.getEmail(), "Welcome to our company", signUpMessage);
-
 
         if (strRoles == null) {
             Role userRole = roleRepository.findByName(ERole.ROLE_USER)
@@ -143,8 +135,6 @@ public class AuthController {
                 }
             });
         }
-
-//        System.out.println(user.toString());
         user.setFirstLogin(true);
         user.setRoles(roles);
         userRepository.save(user);
@@ -178,21 +168,17 @@ public class AuthController {
 
     @PostMapping("/resetPassword")
     public ResponseEntity<?> resetPassword(@RequestParam("email") String userEmail) {
-
-
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException("User Not Found with email: " + userEmail));
 
-        if(user != null){
-            System.out.println("s-a intrat");
-        String token = UUID.randomUUID().toString();
-        userService.createPasswordResetTokenForUser(user, token);
+        if (user != null) {
+            String token = UUID.randomUUID().toString();
+            userService.createPasswordResetTokenForUser(user, token);
 
-        String changePasswordText = "Set your new password by clicking the link below" + "\n"
-                                  +"http://localhost:3000/changePassword/" + token;
+            String changePasswordText = "Set your new password by clicking the link below" + "\n"
+                    + "http://localhost:3000/changePassword/" + token;
 
-        emailService.sendMail(user.getEmail(),"Change your password", changePasswordText);
-        return ResponseEntity.ok("An email has been sent with all the details needed to change the password");
-
+            emailService.sendMail(user.getEmail(), "Change your password", changePasswordText);
+            return ResponseEntity.ok("An email has been sent with all the details needed to change the password");
         }
         return ResponseEntity.badRequest().body(new MessageResponse("Email does not correspond to any account"));
     }
@@ -200,7 +186,7 @@ public class AuthController {
     @GetMapping("/changePassword")
     public String showChangePasswordPage(@RequestParam("token") String token) {
         String result = userService.validatePasswordResetToken(token);
-        if(result != null) {
+        if (result != null) {
             String failMessage = result;
             return failMessage;
         } else {
@@ -208,6 +194,7 @@ public class AuthController {
             return successMessage;
         }
     }
+
     @PutMapping("/savePassword")
     public ResponseEntity<?> savePassword(@RequestParam("token") String token, @RequestParam("password") String password) {
 
@@ -218,8 +205,6 @@ public class AuthController {
 
         return ResponseEntity.ok("The password was changed!");
     }
-
-
 
 
 }

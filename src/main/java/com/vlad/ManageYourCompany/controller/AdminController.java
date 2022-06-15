@@ -210,10 +210,7 @@ public class AdminController {
             userRepository.save(user);
         }
 
-
         leaveRequest.setNumberOfDays((int) differenceInDays);
-
-
         leaveRequestRepository.save(leaveRequest);
 
         return ResponseEntity.ok("Vacation request was accepted!");
@@ -287,7 +284,6 @@ public class AdminController {
                 .orElseThrow(() -> new ProjectNotFoundException("No projects found"));
 
         List<ProjectCommits> projectCommits = projectWithMostCommits.getProjectCommits();
-        System.out.println(projectCommits.toString());
 
         return ResponseEntity.ok(projectWithMostCommits);
     }

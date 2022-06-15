@@ -8,6 +8,8 @@ import com.vlad.ManageYourCompany.controller.payload.WorkingDayRequest;
 import com.vlad.ManageYourCompany.model.*;
 import com.vlad.ManageYourCompany.repositories.*;
 import com.vlad.ManageYourCompany.security.jwt.JwtUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -26,6 +29,10 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
+
+
+    Logger logger = LoggerFactory.getLogger(UserController.class);
+
 
     @Autowired
     UserRepository userRepository;
@@ -106,8 +113,6 @@ public class UserController {
         adminNotification.setType("New details about the current working day");
 
         adminNotificationRepository.save(adminNotification);
-
-
         workingDaysRepository.save(workingDays);
 
         return ResponseEntity.ok(workingDays);
@@ -118,11 +123,9 @@ public class UserController {
     public ResponseEntity<?> getWorkingDays(HttpServletRequest request) {
 
         User user = getUser(request);
-
         Long id = user.getId();
 
         Collection<WorkingDays> workingDays = workingDaysRepository.findWorkingDaysByUser(id);
-
         return ResponseEntity.ok(workingDays);
     }
 
@@ -134,6 +137,7 @@ public class UserController {
 
     @PostMapping("/setProjectCommit")
     public ResponseEntity<?> setProjectCommit(@RequestBody ProjectCommitsRequest projectCommitsRequest, HttpServletRequest request) {
+
         User user = getUser(request);
 
         Project project = user.getProject();
@@ -157,18 +161,24 @@ public class UserController {
 
         projectCommitsRepository.save(projectCommit);
 
+
         return ResponseEntity.ok(project);
     }
 
     @GetMapping("/getProjectCommits")
-    public ResponseEntity<?> getProjectCommits(HttpServletRequest request) {
+    public ResponseEntity<?> getProjectCommits(HttpServletRequest request){
+
+        long start = System.nanoTime();
 
         User user = getUser(request);
 
         Project project = user.getProject();
 
         List<ProjectCommits> projectCommits = projectCommitsRepository.findByProjectOrderByIdDesc(project);
-        System.out.println(projectCommits);
+
+        long duration = System.nanoTime() - start;
+
+        logger.info("Execution time in milliseconds for getProjectCommits: " + duration / 1000000);
 
         return ResponseEntity.ok(projectCommits);
 
@@ -176,6 +186,7 @@ public class UserController {
 
     @PostMapping("/leaveRequest")
     public ResponseEntity<?> leaveRequest(@RequestBody LeaveTypeRequest leaveTypeRequest, HttpServletRequest request) {
+
 
         User user = getUser(request);
         LeaveRequest newLeaveRequest = new LeaveRequest();
@@ -187,14 +198,11 @@ public class UserController {
         newLeaveRequest.setStartDate(startDay);
         newLeaveRequest.setEndDate(endDay);
 
-
         String leavingType = leaveTypeRequest.getLeavingType();
 
-        //get difference between start and end date in days
         long diff = endDay.getTime() - startDay.getTime();
         long differenceInDays = TimeUnit.MILLISECONDS.toDays(diff) % 365;
 
-        System.out.println("diff in days" + differenceInDays);
         if(differenceInDays > user.getFreeDays()) {
             return ResponseEntity.badRequest().body("You don't have enough vacation days left !");
         }
@@ -207,17 +215,25 @@ public class UserController {
             newLeaveRequest.setLeaveType(LeaveType.FAMILY_PROBLEM);
         }
 
+        newLeaveRequest.setNumberOfDays((int)differenceInDays);
+
+        sendAdminNotificationForNewLeaveRequest(user);
+
+        leaveRequestRepository.save(newLeaveRequest);
+
+        return ResponseEntity.ok("The request was send to your superior!");
+    }
+
+    private void sendAdminNotificationForNewLeaveRequest(User user) {
         AdminNotification adminNotification = new AdminNotification();
         Date notificationDate = new Date();
+
         adminNotification.setDate(notificationDate);
         adminNotification.setUser(user);
         adminNotification.setDescription("New leave request by " + user.getPrenume() + " " + user.getNume());
         adminNotification.setType("Leave request");
 
         adminNotificationRepository.save(adminNotification);
-        leaveRequestRepository.save(newLeaveRequest);
-
-        return ResponseEntity.ok("The request was send to your superior!");
     }
 
     @GetMapping("/getLeavingPermissionRequests")
