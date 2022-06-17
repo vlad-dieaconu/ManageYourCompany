@@ -224,6 +224,7 @@ public class AdminController {
         LeaveRequest leaveRequest = leaveRequestRepository.findById(id).orElseThrow(() -> new LeaveRequestNotFoundException(id));
         leaveRequest.setSeenBySuperior(true);
         leaveRequest.setApproved(false);
+        leaveRequest.setNumberOfDays(0);
         leaveRequestRepository.save(leaveRequest);
     }
 
