@@ -11,4 +11,7 @@ import java.util.Optional;
 public interface ProjectRepository extends JpaRepository<Project,Long> {
      List<Project> findAllByOrderByIdDesc();
      Optional<Project> findById(Long id);
+     List<Project> findByLocatie(String locatie);
+     Project findTopByOrderByNumarResurseNecesareDesc();
+     Project findTopByOrderByNumarActualResurseDesc();
 }

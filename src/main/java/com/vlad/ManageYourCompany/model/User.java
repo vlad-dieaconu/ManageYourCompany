@@ -43,7 +43,7 @@ public class User {
     private byte[] profilePicture;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<AdminNotification> adminNotifications;
 
     private int freeDays;
@@ -63,17 +63,20 @@ public class User {
     private Project project;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProjectCommits> projectCommits;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<WorkingDays> workingDays;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<LeaveRequest> leaveRequests;
 
+    @JsonIgnore
+    @OneToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private PasswordResetToken passwordResetToken;
 
     private boolean firstLogin;
 

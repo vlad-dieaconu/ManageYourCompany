@@ -289,5 +289,33 @@ public class AdminController {
         return ResponseEntity.ok(projectWithMostCommits);
     }
 
+    //get projects by locations
+    @GetMapping("/getProjectsByLocation")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getProjectsByLocation(@RequestParam String location){
+
+            List<Project> projects = projectRepository.findByLocatie(location);
+            return ResponseEntity.ok(projects);
+
+    }
+
+    @GetMapping("/getProjectWithMostRessourcesNeeded")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> testtt(){
+        Project project = projectRepository.findTopByOrderByNumarResurseNecesareDesc();
+        List<Project> projects = new ArrayList<>();
+        projects.add(project);
+        return ResponseEntity.ok(projects);
+    }
+
+    @GetMapping("/getProjectWithMostActualResources")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getProjectWithMostActualResources(){
+        Project project = projectRepository.findTopByOrderByNumarActualResurseDesc();
+        List<Project> projects = new ArrayList<>();
+        projects.add(project);
+        return ResponseEntity.ok(projects);
+    }
+
 
 }
